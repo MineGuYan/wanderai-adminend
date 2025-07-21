@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { User, Comment } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {User, Comment, SwitchButton, ArrowDown, HomeFilled} from '@element-plus/icons-vue'
 
 const router = useRouter()
-const activeMenu = ref('user-management') // 默认激活用户管理
+const activeMenu = ref('home') // 默认激活用户管理
 
 // 从路由中获取当前激活的菜单
 const updateActiveMenu = () => {
@@ -26,6 +27,54 @@ watch(() => router.currentRoute.value, () => {
 const handleMenuSelect = (index: string) => {
   router.push({ name: index })
 }
+
+// 用户信息类型
+interface UserInfo {
+  id: number
+  username: string
+  nickname?: string
+  avatar?: string
+}
+
+// 模拟用户数据 - 实际应用中应从store或API获取
+const userInfo = ref<UserInfo>({
+  id: 1,
+  username: 'admin',
+  nickname: '管理员',
+  avatar: ''
+})
+
+// 处理下拉菜单命令
+const handleCommand = (command: string) => {
+  switch (command) {
+    case 'logout':
+      handleLogout()
+      break
+  }
+}
+
+// 退出登录
+const handleLogout = () => {
+  ElMessageBox.confirm(
+    '确定要退出登录吗？',
+    '退出确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(() => {
+    // 这里替换为实际的退出登录API调用
+    // 模拟退出请求
+    setTimeout(() => {
+      ElMessage.success('退出成功')
+      // 退出成功后跳转到登录页
+      router.push('/login')
+    }, 500)
+  }).catch(() => {
+    // 用户取消退出
+  })
+}
 </script>
 
 <template>
@@ -39,6 +88,11 @@ const handleMenuSelect = (index: string) => {
       class="sidebar-menu"
       @select="handleMenuSelect"
     >
+      <el-menu-item index="home">
+        <el-icon><HomeFilled /></el-icon>
+        <span>首页</span>
+      </el-menu-item>
+
       <el-menu-item index="user">
         <el-icon><User /></el-icon>
         <span>用户管理</span>
@@ -51,6 +105,26 @@ const handleMenuSelect = (index: string) => {
 
       <!-- 可以继续添加其他菜单项 -->
     </el-menu>
+
+    <div class="header-right">
+      <el-dropdown @command="handleCommand" v-if="userInfo">
+        <div class="user-info">
+          <el-avatar :size="32" :src="userInfo.avatar" class="avatar">
+            {{ userInfo.nickname?.charAt(0) || 'U' }}
+          </el-avatar>
+          <span class="nickname">{{ userInfo.nickname || userInfo.username }}</span>
+          <el-icon><arrow-down /></el-icon>
+        </div>
+
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="logout">
+              <el-icon><SwitchButton /></el-icon>退出登录
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 
@@ -99,5 +173,11 @@ const handleMenuSelect = (index: string) => {
   color: inherit;
   margin-right: 8px;
   font-size: 18px;
+}
+
+.avatar {
+  margin-right: 8px;
+  background-color: #409eff;
+  color: #fff;
 }
 </style>

@@ -5,44 +5,62 @@ import {
   Lock,
   User
 } from '@element-plus/icons-vue'
+import {useRouter} from "vue-router";
+import api from "../api/request.ts";
 
 // 登录表单数据
 const loginForm = ref({
-  username: '',
+  userid: '',
   password: ''
 })
 
 // 表单验证规则
 const loginRules = {
-  username: [
+  userid: [
     { required: true, message: '请输入管理员账号', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { min: 6, max: 10, message: '长度在 6 到 10 个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
   ]
 }
 
 const loading = ref(false)
 const loginFormRef = ref()
+const router = useRouter()
 
 // 登录方法
-const handleLogin = () => {
-  loginFormRef.value.validate((valid: boolean) => {
-    if (valid) {
-      loading.value = true
-      // 这里替换为实际的登录API调用
-      // 模拟登录请求
-      setTimeout(() => {
+const handleLogin = async () => {
+  try {
+    await loginFormRef.value.validate()
+
+    loading.value = true
+
+    try {
+      const response = await api.post('/admin/login',{
+        adminId: loginForm.value.userid,
+        password: loginForm.value.password
+      })
+
+      if (response.data.code === 1) {
         ElMessage.success('登录成功')
         loading.value = false
-        // 登录成功后的操作，例如跳转页面
-      }, 1000)
-    } else {
+        router.push('/')
+      } else {
+        ElMessage.error('登录失败，请稍后重试')
+      loading.value = false
+      return false
+      }
+    } catch (error) {
+      ElMessage.error('登录请求失败，请稍后重试')
+      loading.value = false
       return false
     }
-  })
+  } catch (error) {
+    ElMessage.error('表单验证失败，请检查输入')
+    return false
+  }
 }
 </script>
 
@@ -56,9 +74,9 @@ const handleLogin = () => {
         ref="loginFormRef"
         @keyup.enter="handleLogin"
       >
-        <el-form-item prop="username">
+        <el-form-item prop="userid">
           <el-input
-            v-model="loginForm.username"
+            v-model="loginForm.userid"
             placeholder="请输入管理员账号"
             :prefix-icon="User"
             clearable

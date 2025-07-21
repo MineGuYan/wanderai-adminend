@@ -3,7 +3,7 @@ import SidebarBox from "../components/SidebarBox.vue";
 </script>
 
 <template>
-   <div class="layout-container">
+  <div class="layout-container">
     <sidebar-box></sidebar-box>
 
     <div class="content-container">
