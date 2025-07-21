@@ -5,9 +5,6 @@ import { Refresh, Search } from '@element-plus/icons-vue'
 import api from "../api/request.ts";
 import type { Account, Pagination } from "../model/model.ts";
 
-// 分页数据类型
-
-
 // 用户列表数据
 const userList = ref<Account[]>([])
 const loading = ref(false)
@@ -19,6 +16,11 @@ const pagination = ref<Pagination>({
   pageSize: 10,
   total: 0
 })
+
+// 自定义序号
+const indexMethod = (index: number) => {
+  return (pagination.value.currentPage - 1) * pagination.value.pageSize + index + 1
+}
 
 // 获取用户列表
 const fetchUserList = async () => {
@@ -73,7 +75,13 @@ const handleDelete = (user: Account) => {
   })
 }
 
+// 搜索用户
 const handleSearch = async () => {
+  if (searchKeyword.value.trim() === '') {
+    ElMessage.warning('请输入搜索关键词')
+    return
+  }
+
   try {
     const response = await api.get('/admin/getAccount', {
       params: {
@@ -115,8 +123,7 @@ onMounted(() => {
     <el-card class="user-list-card">
       <div class="header">
         <h2>用户列表</h2>
-        <el-input
-          v-model="searchKeyword"
+        <el-input v-model="searchKeyword"
           placeholder="搜索账号"
           clearable
           style="width: 300px"
@@ -133,24 +140,13 @@ onMounted(() => {
         </el-button>
       </div>
 
-      <el-table
-        :data="userList"
-        border
-        stripe
-        style="width: 100%"
-        v-loading="loading"
-      >
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="username" label="账号" width="180" />
+      <el-table :data="userList" border stripe style="width: 100%" v-loading="loading">
+        <el-table-column label="序号" width="80" type="index" :index="indexMethod"/>
+        <el-table-column prop="accountId" label="账号" width="180" />
         <el-table-column prop="nickname" label="昵称" />
         <el-table-column label="操作" width="120">
           <template #default="scope">
-            <el-button
-              type="danger"
-              size="small"
-              @click="handleDelete(scope.row)"
-              :loading="scope.row.deleting"
-            >
+            <el-button type="danger" size="small" @click="handleDelete(scope.row)" :loading="scope.row.deleting">
               删除
             </el-button>
           </template>

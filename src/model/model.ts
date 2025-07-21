@@ -8,3 +8,9 @@ export interface Pagination {
   pageSize: number
   total: number
 }
+
+export interface Feedback {
+    id: string,
+    accountId: string,
+    message: string
+}
