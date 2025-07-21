@@ -49,7 +49,7 @@ const handleLogout = () => {
       class="sidebar-menu"
       @select="handleMenuSelect"
     >
-      <el-menu-item index="user">
+      <el-menu-item index="user" class="menu-item">
         <el-icon><User /></el-icon>
         <span>用户管理</span>
       </el-menu-item>
