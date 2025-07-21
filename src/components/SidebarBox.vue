@@ -1,27 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {User, Comment, SwitchButton, ArrowDown, HomeFilled} from '@element-plus/icons-vue'
+import {User, Comment, SwitchButton, ArrowDown} from '@element-plus/icons-vue'
 
 const router = useRouter()
-const activeMenu = ref('home') // 默认激活用户管理
-
-// 从路由中获取当前激活的菜单
-const updateActiveMenu = () => {
-  const routeName = router.currentRoute.value.name?.toString() || ''
-  if (['user-management', 'feedback-management'].includes(routeName)) {
-    activeMenu.value = routeName
-  }
-}
-
-// 初始化时设置激活菜单
-updateActiveMenu()
-
-// 监听路由变化
-watch(() => router.currentRoute.value, () => {
-  updateActiveMenu()
-})
+const activeMenu = ref('user') // 默认激活用户管理
 
 // 处理菜单选择
 const handleMenuSelect = (index: string) => {
@@ -64,15 +48,8 @@ const handleLogout = () => {
       type: 'warning'
     }
   ).then(() => {
-    // 这里替换为实际的退出登录API调用
-    // 模拟退出请求
-    setTimeout(() => {
-      ElMessage.success('退出成功')
-      // 退出成功后跳转到登录页
-      router.push('/login')
-    }, 500)
-  }).catch(() => {
-    // 用户取消退出
+    localStorage.removeItem('token')
+    router.push('/login')
   })
 }
 </script>
@@ -88,11 +65,6 @@ const handleLogout = () => {
       class="sidebar-menu"
       @select="handleMenuSelect"
     >
-      <el-menu-item index="home">
-        <el-icon><HomeFilled /></el-icon>
-        <span>首页</span>
-      </el-menu-item>
-
       <el-menu-item index="user">
         <el-icon><User /></el-icon>
         <span>用户管理</span>
