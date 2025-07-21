@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import {User, Comment, SwitchButton, ArrowDown} from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -11,22 +11,6 @@ const activeMenu = ref('user') // 默认激活用户管理
 const handleMenuSelect = (index: string) => {
   router.push({ name: index })
 }
-
-// 用户信息类型
-interface UserInfo {
-  id: number
-  username: string
-  nickname?: string
-  avatar?: string
-}
-
-// 模拟用户数据 - 实际应用中应从store或API获取
-const userInfo = ref<UserInfo>({
-  id: 1,
-  username: 'admin',
-  nickname: '管理员',
-  avatar: ''
-})
 
 // 处理下拉菜单命令
 const handleCommand = (command: string) => {
@@ -79,12 +63,10 @@ const handleLogout = () => {
     </el-menu>
 
     <div class="header-right">
-      <el-dropdown @command="handleCommand" v-if="userInfo">
+      <el-dropdown @command="handleCommand">
         <div class="user-info">
-          <el-avatar :size="32" :src="userInfo.avatar" class="avatar">
-            {{ userInfo.nickname?.charAt(0) || 'U' }}
-          </el-avatar>
-          <span class="nickname">{{ userInfo.nickname || userInfo.username }}</span>
+          <el-avatar :size="32" class="avatar">管</el-avatar>
+          <span class="nickname">管理员</span>
           <el-icon><arrow-down /></el-icon>
         </div>
 
