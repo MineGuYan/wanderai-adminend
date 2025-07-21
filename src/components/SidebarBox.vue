@@ -57,8 +57,10 @@ const handleMenuSelect = (index: string) => {
 <style scoped>
 .sidebar-container {
   height: 100%;
+  width: 12%;
   background-color: #001529;
   color: white;
+
 }
 
 .sidebar-logo {
@@ -79,7 +81,14 @@ const handleMenuSelect = (index: string) => {
 .sidebar-menu {
   border-right: none;
   background-color: #001529;
+  /*设置为弹性布局*/
+  display:flex;
+  /*设置垂直排列菜单项*/
+  flex-direction: column;
+  /*使菜单项在水平方向上居中对齐*/
+  align-items:center;
 }
+
 
 .sidebar-menu :deep(.el-menu-item) {
   color: rgba(255, 255, 255, 0.65);
