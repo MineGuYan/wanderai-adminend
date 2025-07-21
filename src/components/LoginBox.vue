@@ -50,8 +50,8 @@ const handleLogin = async () => {
         await router.push('/')
       } else {
         ElMessage.error('登录失败，请稍后重试')
-      loading.value = false
-      return false
+        loading.value = false
+        return false
       }
     } catch (error) {
       ElMessage.error('登录请求失败，请稍后重试')
