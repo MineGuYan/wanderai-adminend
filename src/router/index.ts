@@ -4,12 +4,21 @@ const routes = [
     {
         path: '/',
         component: () => import('../views/home.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/feedback',
-        component: () => import('../views/feedback.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true },
+        children: [
+            {
+              path: '/user',
+              name: 'user',
+              component: () => import('../views/user.vue'),
+              meta: { title: '用户管理' }
+            },
+            {
+              path: '/feedback',
+              name: 'feedback',
+              component: () => import('../views/feedback.vue'),
+              meta: { title: '用户反馈' }
+            },
+        ]
     },
     {
         path: '/login',
