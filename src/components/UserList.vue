@@ -1,27 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh } from '@element-plus/icons-vue'
-
-// 用户数据类型
-interface User {
-  id: number
-  username: string
-  nickname: string
-  createTime: string
-  deleting?: boolean
-}
+import { Refresh, Search } from '@element-plus/icons-vue'
+import api from "../api/request.ts";
+import type { Account, Pagination } from "../model/model.ts";
 
 // 分页数据类型
-interface Pagination {
-  currentPage: number
-  pageSize: number
-  total: number
-}
+
 
 // 用户列表数据
-const userList = ref<User[]>([])
+const userList = ref<Account[]>([])
 const loading = ref(false)
+const searchKeyword = ref('')
 
 // 分页数据
 const pagination = ref<Pagination>({
@@ -34,20 +24,15 @@ const pagination = ref<Pagination>({
 const fetchUserList = async () => {
   try {
     loading.value = true
-    // 这里替换为实际的API调用
-    // 模拟API请求
-    const mockData = {
-      data: [
-        { id: 1, username: 'admin', nickname: '管理员', createTime: '2023-01-01 10:00:00' },
-        { id: 2, username: 'user1', nickname: '用户1', createTime: '2023-01-02 11:00:00' },
-        { id: 3, username: 'user2', nickname: '用户2', createTime: '2023-01-03 12:00:00' },
-        // 更多模拟数据...
-      ],
-      total: 3
-    }
 
-    userList.value = mockData.data
-    pagination.value.total = mockData.total
+    const response = await api.get('/admin/getUsers')
+
+    if (response.data.code === 1) {
+      userList.value = response.data.data
+      pagination.value.total = response.data.data.length
+    } else {
+      ElMessage.error('获取用户列表失败: ' + response.data.message)
+    }
   } catch (error) {
     ElMessage.error('获取用户列表失败')
     console.error(error)
@@ -57,9 +42,9 @@ const fetchUserList = async () => {
 }
 
 // 删除用户
-const handleDelete = (user: User) => {
+const handleDelete = (user: Account) => {
   ElMessageBox.confirm(
-    `确定要删除用户 "${user.nickname} (${user.username})" 吗？`,
+    `确定要删除用户 "${user.nickname} (${user.accountId})" 吗？`,
     '删除确认',
     {
       confirmButtonText: '确定',
@@ -68,23 +53,55 @@ const handleDelete = (user: User) => {
     }
   ).then(async () => {
     try {
-      user.deleting = true
-      // 这里替换为实际的删除API调用
-      // 模拟删除请求
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await api.delete('/admin/deleteAccount',{
+        data: {
+          accountId:user.accountId
+        }
+      })
 
-      userList.value = userList.value.filter(u => u.id !== user.id)
-      pagination.value.total -= 1
-      ElMessage.success('删除成功')
+      if (response.data.code === 1) {
+        pagination.value.total -= 1
+        userList.value = userList.value.filter(u => u.accountId !== user.accountId)
+        ElMessage.success('删除成功')
+      } else {
+        ElMessage.error('删除请求失败')
+      }
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除请求失败')
       console.error(error)
-    } finally {
-      user.deleting = false
     }
-  }).catch(() => {
-    // 用户取消删除
   })
+}
+
+const handleSearch = async () => {
+  try {
+    const response = await api.get('/admin/getAccount', {
+      params: {
+        accountId: searchKeyword.value
+      }
+    })
+
+    if (response.data.code === 1) {
+      userList.value = response.data.data
+      pagination.value.total = response.data.data.length
+      pagination.value.currentPage= 1
+      if (pagination.value.total === 0) {
+        ElMessage.warning('未找到匹配的用户')
+      }
+    } else {
+      ElMessage.error('搜索失败: ' + response.data.message)
+    }
+  } catch (error) {
+    ElMessage.error('搜索请求失败')
+    console.error(error)
+  }
+}
+
+// 清除搜索
+const handleSearchClear = () => {
+  searchKeyword.value = ''
+  pagination.value.currentPage= 1
+  fetchUserList()
 }
 
 // 组件挂载时获取用户列表
@@ -98,7 +115,19 @@ onMounted(() => {
     <el-card class="user-list-card">
       <div class="header">
         <h2>用户列表</h2>
-        <el-button type="primary" @click="fetchUserList" :loading="loading">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索账号"
+          clearable
+          style="width: 300px"
+          @clear="handleSearchClear"
+          @keyup.enter="handleSearch"
+        >
+          <template #append>
+            <el-button :icon="Search" @click="handleSearch" />
+          </template>
+        </el-input>
+        <el-button type="primary" @click="handleSearchClear" :loading="loading">
           <el-icon><Refresh /></el-icon>
           刷新
         </el-button>
@@ -114,7 +143,6 @@ onMounted(() => {
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="username" label="账号" width="180" />
         <el-table-column prop="nickname" label="昵称" />
-        <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="120">
           <template #default="scope">
             <el-button

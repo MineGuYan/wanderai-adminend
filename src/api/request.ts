@@ -1,5 +1,6 @@
 import axios from "axios"
 import {ElMessageBox} from "element-plus";
+import { useRouter } from 'vue-router'
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_API_BASE_URL
@@ -33,7 +34,7 @@ api.interceptors.response.use(
                 type: 'warning'
             }).then(() => {
                 localStorage.removeItem('token')
-                window.location.href = '/login'
+                useRouter().push('/login')
             });
         }
         return Promise.reject(error)

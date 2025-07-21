@@ -5,7 +5,7 @@ import { ElMessageBox } from 'element-plus'
 import {User, Comment, SwitchButton, ArrowDown} from '@element-plus/icons-vue'
 
 const router = useRouter()
-const activeMenu = ref('user') // 默认激活用户管理
+const activeMenu = ref('home') // 默认激活用户管理
 
 // 处理菜单选择
 const handleMenuSelect = (index: string) => {
