@@ -16,6 +16,14 @@ import SidebarBox from "../components/SidebarBox.vue";
 .layout-container {
   display: flex;
   height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  contain: layout style paint;
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .content-container {
