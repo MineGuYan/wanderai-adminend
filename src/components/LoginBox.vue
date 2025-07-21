@@ -45,8 +45,9 @@ const handleLogin = async () => {
 
       if (response.data.code === 1) {
         ElMessage.success('登录成功')
+        localStorage.setItem('token', response.data.data.token)
         loading.value = false
-        router.push('/')
+        await router.push('/')
       } else {
         ElMessage.error('登录失败，请稍后重试')
       loading.value = false
