@@ -5,6 +5,7 @@ import {
   Lock,
   User
 } from '@element-plus/icons-vue'
+import { sha256 } from 'js-sha256'
 import {useRouter} from "vue-router";
 import api from "../api/request.ts";
 
@@ -36,16 +37,18 @@ const handleLogin = async () => {
     await loginFormRef.value.validate()
 
     loading.value = true
+    const encryptedPassword = sha256(loginForm.value.password)
 
     try {
       const response = await api.post('/admin/login',{
         adminId: loginForm.value.userid,
-        password: loginForm.value.password
+        password: encryptedPassword
       })
 
       if (response.data.code === 1) {
         ElMessage.success('登录成功')
         localStorage.setItem('token', response.data.data.token)
+        localStorage.setItem('adminId', response.data.data.adminId)
         loading.value = false
         await router.push('/')
       } else {
