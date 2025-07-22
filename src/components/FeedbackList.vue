@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {Refresh, Search} from '@element-plus/icons-vue'
-import type { Feedback, Pagination } from "../model/model.ts";
+import { Refresh, Search } from '@element-plus/icons-vue'
+import type { Feedback } from "../model/model.ts";
 import api from "../api/request.ts";
 
 // 反馈列表数据
@@ -10,12 +10,6 @@ const feedbackList = ref<Feedback[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 
-// 分页数据
-const pagination = ref<Pagination>({
-  currentPage: 1,
-  pageSize: 10,
-  total: 0
-})
 
 // 截断长文本
 const truncateContent = (content: string) => {
@@ -31,7 +25,6 @@ const fetchFeedbackList = async () => {
 
     if (response.data.code === 1) {
       feedbackList.value = response.data.data
-      pagination.value.total = response.data.data.length
     } else {
       ElMessage.error('获取反馈列表失败: ' + response.data.message)
       return
@@ -64,7 +57,6 @@ const handleDelete = (feedback: Feedback) => {
 
       if (response.data.code === 1) {
         feedbackList.value = feedbackList.value.filter(item => item.id !== feedback.id)
-        pagination.value.total -= 1
         ElMessage.success('删除成功')
       } else {
         ElMessage.error('删除请求失败: ' + response.data.message)
@@ -93,9 +85,7 @@ const handleSearch = async () => {
 
     if (response.data.code === 1) {
       feedbackList.value = response.data.data
-      pagination.value.total = response.data.data.length
-      pagination.value.currentPage = 1
-      if (pagination.value.total === 0) {
+      if (response.data.data.length === 0) {
         ElMessage.info('未找到相关反馈')
       }
     } else {
@@ -110,7 +100,6 @@ const handleSearch = async () => {
 // 清除搜索
 const handleSearchClear = () => {
   searchKeyword.value = ''
-  pagination.value.currentPage= 1
   fetchFeedbackList()
 }
 
@@ -173,18 +162,6 @@ onMounted(() => {
           </template>
         </el-table-column>
       </el-table>
-
-      <div class="pagination">
-        <el-pagination
-          v-model:current-page="pagination.currentPage"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="fetchFeedbackList"
-          @current-change="fetchFeedbackList"
-        />
-      </div>
     </el-card>
   </div>
 </template>

@@ -3,23 +3,16 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Search } from '@element-plus/icons-vue'
 import api from "../api/request.ts";
-import type { Account, Pagination } from "../model/model.ts";
+import type { Account } from "../model/model.ts";
 
 // 用户列表数据
 const userList = ref<Account[]>([])
 const loading = ref(false)
 const searchKeyword = ref('')
 
-// 分页数据
-const pagination = ref<Pagination>({
-  currentPage: 1,
-  pageSize: 10,
-  total: 0
-})
-
 // 自定义序号
 const indexMethod = (index: number) => {
-  return (pagination.value.currentPage - 1) * pagination.value.pageSize + index + 1
+  return index + 1
 }
 
 // 获取用户列表
@@ -31,7 +24,6 @@ const fetchUserList = async () => {
 
     if (response.data.code === 1) {
       userList.value = response.data.data
-      pagination.value.total = response.data.data.length
     } else {
       ElMessage.error('获取用户列表失败: ' + response.data.message)
     }
@@ -62,7 +54,6 @@ const handleDelete = (user: Account) => {
       })
 
       if (response.data.code === 1) {
-        pagination.value.total -= 1
         userList.value = userList.value.filter(u => u.accountId !== user.accountId)
         ElMessage.success('删除成功')
       } else {
@@ -88,12 +79,9 @@ const handleSearch = async () => {
         accountId: searchKeyword.value
       }
     })
-
     if (response.data.code === 1) {
-      userList.value = response.data.data
-      pagination.value.total = response.data.data.length
-      pagination.value.currentPage= 1
-      if (pagination.value.total === 0) {
+      userList.value = [response.data.data]
+      if (response.data.data.length === 0) {
         ElMessage.warning('未找到匹配的用户')
       }
     } else {
@@ -108,7 +96,6 @@ const handleSearch = async () => {
 // 清除搜索
 const handleSearchClear = () => {
   searchKeyword.value = ''
-  pagination.value.currentPage= 1
   fetchUserList()
 }
 
@@ -152,18 +139,6 @@ onMounted(() => {
           </template>
         </el-table-column>
       </el-table>
-
-      <div class="pagination">
-        <el-pagination
-          v-model:current-page="pagination.currentPage"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="fetchUserList"
-          @current-change="fetchUserList"
-        />
-      </div>
     </el-card>
   </div>
 </template>
