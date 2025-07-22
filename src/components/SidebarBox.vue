@@ -109,13 +109,13 @@ const handleLogout = () => {
 }
 
 .sidebar-menu {
+  flex: 1;
   width: 100%;
   border-right: none;
   background-color: #001529;
-  /*设置为弹性布局*/
-  display:flex;
-  /*设置垂直排列菜单项*/
+  display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .sidebar-menu .menu-item{
@@ -153,7 +153,6 @@ const handleLogout = () => {
 
 .settings {
   width: 100%;
-  margin-top: auto;
   padding: 16px;
   border-top: 1px solid #002140;
   box-sizing: border-box;
@@ -169,6 +168,7 @@ const handleLogout = () => {
 }
 
 .user-info {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;

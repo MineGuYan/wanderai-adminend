@@ -116,6 +116,17 @@ const handleLogin = async () => {
   align-items: center;
   min-height: 100vh;
   background-color: #f5f5f5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image:url('../assets/img/login-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .login-card {
@@ -123,6 +134,8 @@ const handleLogin = async () => {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.9);
+
 }
 
 .login-title {
